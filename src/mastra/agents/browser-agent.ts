@@ -1,3 +1,4 @@
+import { openai } from '@ai-sdk/openai';
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
 import { AgentBrowser, AgentBrowserThreadManager } from '@mastra/agent-browser';
@@ -6,9 +7,6 @@ import { createRequire } from 'node:module';
 import { dirname, join, normalize } from 'node:path';
 import { spawn } from 'node:child_process';
 import 'playwright-chromium';
-import { webSearchTool } from '../tools/web-search';
-
-const agentModel = process.env.AGENT_MODEL?.trim() || 'mastra/openai/gpt-5-mini';
 
 const require = createRequire(import.meta.url);
 let installDepsPromise: Promise<void> | undefined;
@@ -113,13 +111,13 @@ export const browserAgent = new Agent({
 - **Use browser_evaluate sparingly.** Only for tasks that can't be done through the standard tools (e.g. reading a computed CSS value). Prefer snapshot + click/type.
 - **Cite URLs.** Always include the URLs you visited in your final answer.
 - **Be concise.** Report what you found and what you did, not a play-by-play of every snapshot.`,
-  model: agentModel,
+  model: 'mastra/openai/gpt-5-mini',
   defaultOptions: {
     maxSteps: 100,
   },
   browser,
   tools: {
-    web_search: webSearchTool,
+    web_search: openai.tools.webSearch({}),
   },
   memory: new Memory({
     options: {
